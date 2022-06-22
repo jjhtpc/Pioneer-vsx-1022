@@ -11,24 +11,19 @@ import time
 import voluptuous as vol
 
 from homeassistant.components.media_player import (
-    MediaPlayerDevice, PLATFORM_SCHEMA)
-	
-from homeassistant.components.media_player.const import (
-    SUPPORT_PAUSE, SUPPORT_SELECT_SOURCE, SUPPORT_TURN_OFF, 
-	SUPPORT_TURN_ON, SUPPORT_VOLUME_MUTE, SUPPORT_VOLUME_STEP,
-    SUPPORT_PLAY	
-	)
+    SUPPORT_PAUSE, SUPPORT_SELECT_SOURCE, MediaPlayerEntity, PLATFORM_SCHEMA,
+    SUPPORT_TURN_OFF, SUPPORT_TURN_ON, SUPPORT_VOLUME_MUTE, SUPPORT_VOLUME_STEP,
+    SUPPORT_PLAY)
 from homeassistant.const import (
     CONF_HOST, STATE_OFF, STATE_ON, STATE_UNKNOWN, CONF_NAME, CONF_PORT,
-    CONF_TIMEOUT
-	)
+    CONF_TIMEOUT)
 import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
-DEFAULT_NAME = 'Pioneer AVR VSX-1022'
+DEFAULT_NAME = 'Pioneer AVR'
 DEFAULT_PORT = 8102   # Some use other use 23 telnet default.
-DEFAULT_TIMEOUT = None
+DEFAULT_TIMEOUT = 0.5
 
 SUPPORT_PIONEER = SUPPORT_PAUSE | SUPPORT_VOLUME_STEP | SUPPORT_VOLUME_MUTE | \
                   SUPPORT_TURN_ON | SUPPORT_TURN_OFF | \
@@ -44,7 +39,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+async def async_setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Pioneer platform."""
     pioneer = PioneerDevice(
         config.get(CONF_NAME), config.get(CONF_HOST), config.get(CONF_PORT),
@@ -54,7 +49,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         add_devices([pioneer])
 
 
-class PioneerDevice(MediaPlayerDevice):
+class PioneerDevice(MediaPlayerEntity):
     """Representation of a Pioneer device."""
 
     def __init__(self, name, host, port, timeout):
@@ -142,6 +137,7 @@ class PioneerDevice(MediaPlayerDevice):
     def name(self):
         """Return the name of the device."""
         return self._name
+
 
     @property
     def state(self):
